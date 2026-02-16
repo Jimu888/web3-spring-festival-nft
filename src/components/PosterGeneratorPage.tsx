@@ -231,16 +231,60 @@ const PosterGeneratorPage: React.FC = () => {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       renderTo(ctx, img, exportScale);
+
+      const fileName = `Web3春晚-${name.trim() || '几木'}-${selectedTemplate.name}.png`;
+
+      // 将 canvas 转为 blob
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        hires.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png');
+      });
+
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      if (isMobile && navigator.share && typeof navigator.canShare === 'function') {
+        // 移动端优先使用 Web Share API —— 可以直接保存到相册或分享
+        const file = new File([blob], fileName, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Web3春晚奖杯海报' });
+          const n = incrementCount(selectedTemplate.id);
+          setCounter(n);
+          toast.success('海报已分享/保存！');
+          return;
+        }
+      }
+
+      // 降级方案：用 blob URL + <a download>
+      const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.download = `Web3春晚-${name.trim() || '几木'}-${selectedTemplate.name}.png`;
-      a.href = hires.toDataURL('image/png');
+      a.href = blobUrl;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       a.remove();
+
+      // 在移动端如果 download 属性不支持，在新窗口打开让用户长按保存
+      if (isMobile) {
+        // 延迟检测：如果 download 不生效，打开新窗口
+        setTimeout(() => {
+          // 打开 blob URL 让用户长按保存
+          const w = window.open(blobUrl, '_blank');
+          if (w) {
+            toast('请长按图片保存到相册', { duration: 5000, icon: '💡' });
+          }
+        }, 800);
+      } else {
+        // 桌面端直接释放
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      }
+
       const n = incrementCount(selectedTemplate.id);
       setCounter(n);
       toast.success('海报已保存！');
-    } catch { toast.error('保存失败，请重试'); }
+    } catch (err: any) {
+      // Web Share API 的 AbortError 表示用户取消分享，不算失败
+      if (err?.name === 'AbortError') return;
+      toast.error('保存失败，请重试');
+    }
   }, [name, title, selectedTemplate, renderTo]);
 
   const handleCopyImage = useCallback(async () => {
@@ -285,7 +329,7 @@ const PosterGeneratorPage: React.FC = () => {
           <span className="text-white/50">奖杯海报领取</span>
         </div>
         <a
-          href="/?theme=street"
+          href="/?theme=street&page=mint"
           className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-yellow-200/20 bg-black/30 text-yellow-100/90 hover:bg-black/40 backdrop-blur-md text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition-colors"
         >
           🎖️ 春晚纪念徽章Free Mint

@@ -13,7 +13,8 @@ export default function AppStreet() {
       // 优先检查 URL 参数
       const q = new URLSearchParams(window.location.search).get('page');
       if (q === 'poster') return 'poster';
-      
+      if (q === 'mint') return 'mint';
+
       // 其次检查域名
       const hostname = window.location.hostname;
       if (hostname.includes('2026')) return 'poster';
