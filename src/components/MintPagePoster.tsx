@@ -1,13 +1,15 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Calendar, Wallet, Loader } from 'lucide-react';
+import { Calendar, Wallet, Loader, Copy, ExternalLink } from 'lucide-react';
 import { useAccount, useConnect, useNetwork, useSwitchNetwork } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import CountdownTimer from './CountdownTimer';
 import NFTPreview from './NFTPreview';
 import AckModal, { hasAcked } from './AckModal';
 import { useMintNFT } from '../hooks/useMintNFT';
+import { WALLETCONNECT_PROJECT_ID } from '../lib/web3Config';
 
 // 海报式布局：参考图风格（中央大面板）
 const MintPagePoster: React.FC = () => {
@@ -31,9 +33,21 @@ const MintPagePoster: React.FC = () => {
 
   // Web3 hooks
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect({
+
+  // 检测是否有注入钱包（钱包内置浏览器）
+  const hasInjectedWallet = typeof window !== 'undefined' && !!(window as any).ethereum;
+  const isMobileBrowser = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const needWalletConnect = isMobileBrowser && !hasInjectedWallet;
+
+  const { connect: connectInjected } = useConnect({
     connector: new InjectedConnector(),
   });
+  const { connect: connectWC } = useConnect({
+    connector: new WalletConnectConnector({
+      options: { projectId: WALLETCONNECT_PROJECT_ID },
+    }),
+  });
+
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork({ chainId: 56 });
   const { mint, isLoading, canMint, userMintCount, remainingSupply, isBSC, chainLoading, status, error } = useMintNFT();
@@ -44,12 +58,24 @@ const MintPagePoster: React.FC = () => {
 
   const [ackOpen, setAckOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<'connect' | 'mint'>('connect');
+  const [showWalletTip, setShowWalletTip] = useState(false);
 
   // 钱包连接
   const handleConnect = () => {
     if (!isConnected) {
-      connect();
-      toast.loading('正在连接钱包...', { icon: '🔌' });
+      if (needWalletConnect) {
+        // 普通手机浏览器：先尝试 WalletConnect，显示提示
+        try {
+          connectWC();
+          toast.loading('正在唤起 WalletConnect...', { icon: '🔗' });
+        } catch {
+          // WalletConnect 失败，显示提示
+          setShowWalletTip(true);
+        }
+      } else {
+        connectInjected();
+        toast.loading('正在连接钱包...', { icon: '🔌' });
+      }
     } else {
       if (!isBSC) {
         // 尝试自动切换到 BSC
@@ -295,6 +321,29 @@ const MintPagePoster: React.FC = () => {
                   </span>
                 </motion.button>
               </div>
+
+              {/* 普通手机浏览器提示：复制链接到钱包浏览器 */}
+              {!isConnected && needWalletConnect && (
+                <div className="mt-3 rounded-xl border border-yellow-200/15 bg-yellow-600/[0.08] p-3 space-y-2">
+                  <p className="text-[11px] text-yellow-200/80 leading-relaxed">
+                    💡 建议在钱包App（MetaMask、OKX、TokenPocket等）的内置浏览器中打开本页面，连接更稳定
+                  </p>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(window.location.href);
+                        toast.success('链接已复制，请粘贴到钱包浏览器中打开');
+                      } catch {
+                        toast.error('复制失败，请手动复制地址栏链接');
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg bg-yellow-400/15 border border-yellow-300/20 text-yellow-200/90 text-xs font-medium hover:bg-yellow-400/25 active:bg-yellow-400/30 transition-colors"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    复制链接到钱包浏览器打开
+                  </button>
+                </div>
+              )}
 
               {/* 时间 & 声明 */}
               <div className="mt-4 space-y-2 text-xs text-white/65">
