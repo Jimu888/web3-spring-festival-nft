@@ -2,8 +2,8 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { Calendar, Wallet, Loader } from 'lucide-react';
-import { useAccount, useConnect } from 'wagmi';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { useAccount, useConnect, useNetwork, useSwitchNetwork } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected';
 import CountdownTimer from './CountdownTimer';
 import NFTPreview from './NFTPreview';
 import AckModal, { hasAcked } from './AckModal';
@@ -32,9 +32,11 @@ const MintPagePoster: React.FC = () => {
   // Web3 hooks
   const { address, isConnected } = useAccount();
   const { connect } = useConnect({
-    connector: new MetaMaskConnector(),
+    connector: new InjectedConnector(),
   });
-  const { mint, isLoading, canMint, userMintCount, remainingSupply, isBSC, status, error } = useMintNFT();
+  const { chain } = useNetwork();
+  const { switchNetwork } = useSwitchNetwork({ chainId: 56 });
+  const { mint, isLoading, canMint, userMintCount, remainingSupply, isBSC, chainLoading, status, error } = useMintNFT();
 
   // Demo数据（如果合约数据不可用）
   const displayTotalSupply = 26;
@@ -50,7 +52,13 @@ const MintPagePoster: React.FC = () => {
       toast.loading('正在连接钱包...', { icon: '🔌' });
     } else {
       if (!isBSC) {
-        toast.error('请切换到BSC网络');
+        // 尝试自动切换到 BSC
+        if (switchNetwork) {
+          switchNetwork();
+          toast.loading('正在切换到BSC网络...', { icon: '🔄' });
+        } else {
+          toast.error('请在钱包中手动切换到BSC网络');
+        }
         return;
       }
       if (userMintCount > 0) {
@@ -73,7 +81,12 @@ const MintPagePoster: React.FC = () => {
       return;
     }
     if (!isBSC) {
-      toast.error('请切换到BSC网络');
+      if (switchNetwork) {
+        switchNetwork();
+        toast.loading('正在切换到BSC网络...', { icon: '🔄' });
+      } else {
+        toast.error('请在钱包中手动切换到BSC网络');
+      }
       return;
     }
     if (userMintCount > 0) {
@@ -233,7 +246,8 @@ const MintPagePoster: React.FC = () => {
                 {/* 钱包状态提示 */}
                 {isConnected && (
                   <div className="mt-3 text-[11px] text-yellow-200/80 bg-yellow-600/15 px-2 py-1.5 rounded">
-                    {!isBSC && '⚠️ 请切换到BSC网络'}
+                    {chainLoading && '⏳ 正在检测网络...'}
+                    {!chainLoading && !isBSC && '⚠️ 请切换到BSC网络（点击下方按钮自动切换）'}
                     {isBSC && userMintCount > 0 && '✅ 你已mint过'}
                     {isBSC && userMintCount === 0 && displayRemainingSupply > 0 && '✨ 可以mint'}
                     {displayRemainingSupply === 0 && '🔥 已售罄'}
@@ -271,7 +285,8 @@ const MintPagePoster: React.FC = () => {
                   <span className="relative z-10 tracking-wide drop-shadow-[0_2px_18px_rgba(255,215,0,0.12)] flex items-center justify-center gap-2">
                     {isLoading && <Loader className="w-4 h-4 animate-spin" />}
                     {!isConnected && 'Connect Wallet'}
-                    {isConnected && !isBSC && '❌ 切换到BSC'}
+                    {isConnected && chainLoading && '⏳ 检测网络中...'}
+                    {isConnected && !chainLoading && !isBSC && '🔄 切换到BSC网络'}
                     {isConnected && isBSC && userMintCount > 0 && '✅ 已mint'}
                     {isConnected && isBSC && userMintCount === 0 && displayRemainingSupply > 0 && 'FREE MINT'}
                     {displayRemainingSupply === 0 && '🔥 已售罄'}
