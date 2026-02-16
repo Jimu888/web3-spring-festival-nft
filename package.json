@@ -1,0 +1,39 @@
+{
+  "name": "spring-festival-nft-mint",
+  "version": "1.0.0",
+  "description": "Web3春节联欢晚会2026纪念徽章 - Mint网站",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "web3": "^4.3.0",
+    "ethers": "^6.8.1",
+    "@rainbow-me/rainbowkit": "^1.3.0",
+    "wagmi": "^1.4.12",
+    "viem": "^1.19.9",
+    "react-hot-toast": "^2.4.1",
+    "framer-motion": "^10.16.16",
+    "lucide-react": "^0.294.0",
+    "@headlessui/react": "^1.7.17",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8",
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["nft", "web3", "spring-festival", "bsc", "mint"],
+  "author": "几木 火星探测技术站",
+  "license": "MIT"
+}

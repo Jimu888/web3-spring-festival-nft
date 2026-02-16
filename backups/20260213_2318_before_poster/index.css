@@ -1,0 +1,144 @@
+/* 自定义字体 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 基础样式 */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif;
+  background: #0f0f23;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 53, 0.6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 53, 0.8);
+}
+
+/* 自定义工具类 */
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px currentColor;
+  }
+  
+  .border-glow {
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+  }
+  
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #FF6B35 0%, #FFD700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .title-serif {
+    font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+
+/* 动画增强 */
+@layer components {
+  .animate-bounce-slow {
+    animation: bounce 3s infinite;
+  }
+  
+  .animate-pulse-soft {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* 特殊效果 */
+.neon-border {
+  position: relative;
+  border: 2px solid transparent;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 215, 0, 0.1));
+  background-clip: padding-box;
+}
+
+.neon-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #FF6B35, #FFD700);
+}
+
+/* 春节特色动画 */
+@keyframes lantern-swing {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+.lantern-swing {
+  animation: lantern-swing 4s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+/* 加载动画 */
+@keyframes spin-glow {
+  0% { 
+    transform: rotate(0deg);
+    box-shadow: 0 0 5px #FF6B35;
+  }
+  50% { 
+    transform: rotate(180deg);
+    box-shadow: 0 0 20px #FFD700;
+  }
+  100% { 
+    transform: rotate(360deg);
+    box-shadow: 0 0 5px #FF6B35;
+  }
+}
+
+.spin-glow {
+  animation: spin-glow 2s linear infinite;
+}
