@@ -137,7 +137,7 @@ const MintPagePoster: React.FC = () => {
           </div>
           <a
             href="/?theme=street&page=poster"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-yellow-200/20 bg-black/30 text-yellow-100/90 hover:bg-black/40 backdrop-blur-md text-sm font-semibold"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-yellow-200/20 bg-black/30 text-yellow-100/90 hover:bg-black/40 backdrop-blur-md text-sm sm:text-base font-semibold transition-colors"
           >
             🏆 春晚奖杯领取
           </a>

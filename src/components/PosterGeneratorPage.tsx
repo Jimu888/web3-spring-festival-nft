@@ -275,8 +275,8 @@ const PosterGeneratorPage: React.FC = () => {
   return (
     <div className="min-h-screen min-h-[100dvh] pb-[env(safe-area-inset-bottom)]">
       {/* Nav — compact on mobile */}
-      <div className="px-3 sm:px-6 pt-3 sm:pt-4 flex items-center gap-2 sm:gap-3">
-        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden ring-1 ring-yellow-300/20 shrink-0">
+      <div className="px-3 sm:px-6 pt-3 sm:pt-4 flex items-center gap-2.5 sm:gap-4">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-yellow-300/20 shadow-[0_0_25px_rgba(255,215,0,0.18)] shrink-0">
           <img src="/nft-preview.jpg" alt="" className="w-full h-full object-cover" />
         </div>
         <div className="text-xs sm:text-sm min-w-0">
@@ -286,9 +286,9 @@ const PosterGeneratorPage: React.FC = () => {
         </div>
         <a
           href="/?theme=street"
-          className="ml-auto px-2.5 sm:px-3 py-1 rounded-lg border border-white/10 bg-white/5 text-white/60 hover:text-white/90 hover:bg-white/10 text-[11px] sm:text-xs transition-colors whitespace-nowrap shrink-0"
+          className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-yellow-200/20 bg-black/30 text-yellow-100/90 hover:bg-black/40 backdrop-blur-md text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition-colors"
         >
-          春晚纪念徽章Free Mint
+          🎖️ 春晚纪念徽章Free Mint
         </a>
       </div>
 

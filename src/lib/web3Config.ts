@@ -9,7 +9,7 @@ import { SPRING_FESTIVAL_BADGE_ABI } from './contractAbi';
 export const CONTRACT_ADDRESS = '0x3e7305b8377800decc2b4359c25bc3fdbdad9843' as const;
 export const CHAIN_ID = 56; // BSC
 export const CHAIN_NAME = 'BSC (Binance Smart Chain)';
-export const WALLETCONNECT_PROJECT_ID = process.env.VITE_WALLETCONNECT_PROJECT_ID || '1af1fbb236796546d0d0dc7d80a3fa1b';
+export const WALLETCONNECT_PROJECT_ID = (import.meta as any).env?.VITE_WALLETCONNECT_PROJECT_ID || '1af1fbb236796546d0d0dc7d80a3fa1b';
 
 // 配置chains和providers
 const { publicClient, webSocketPublicClient } = configureChains(
