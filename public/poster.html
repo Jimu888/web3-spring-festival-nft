@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>海报生成器 · P小将</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="./index.html"><span class="dot"></span><span>Web3 春晚</span></a>
+      <div class="navlinks">
+        <a class="pill" href="./mint.html">NFT Mint</a>
+        <a class="pill" href="./trophy.html">旧版奖杯页</a>
+        <a class="pill" aria-current="page" href="./poster.html">海报生成器</a>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="card pad">
+        <h1 class="h1">生成海报（P小将）</h1>
+        <p class="sub">这版按你给的海报排版来（P小将）：我们只替换 <b>奖杯名字（带透视）</b> + <b>右侧“致敬 XX 先生/女士”</b>。导出为原图尺寸 <span class="kbd">720×1280</span>。</p>
+
+        <div class="grid2">
+          <div class="field">
+            <label class="sub">姓名</label>
+            <input id="nameInput" type="text" placeholder="比如：几木 / Jimu / Jimu 几木" maxlength="18" />
+          </div>
+          <div class="field">
+            <label class="sub">称呼</label>
+            <select id="titleInput">
+              <option value="先生">先生</option>
+              <option value="女士">女士</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label class="sub">选择模板</label>
+          <div class="btnrow" style="margin-top:8px;">
+            <button class="btn secondary" id="tplP" type="button">P小将</button>
+            <button class="btn secondary" id="tplHeYue" type="button">合约玩家</button>
+            <button class="btn secondary" id="tplZuiLu" type="button">嘴撸玩家</button>
+            <button class="btn secondary" id="tplEWei" type="button">E卫兵</button>
+          </div>
+        </div>
+
+        <div class="btnrow" style="margin-top:20px;">
+          <button class="btn" id="btnDownload" type="button">保存海报</button>
+          <button class="btn" id="btnShareTwitter" type="button">📱 发推</button>
+        </div>
+        <p style="font-size:11px; color:rgba(255,255,255,0.5); margin:8px 0 0; line-height:1.4;">💡 在推特对话框按 Ctrl+V 或右键粘贴即可上传海报</p>
+      </div>
+
+      <div class="card pad">
+        <h2 style="margin:0 0 12px; font-size:20px;">预览</h2>
+        <div style="display:flex; justify-content:center;">
+          <canvas id="c" width="720" height="1280" style="width:380px; height:auto; border-radius:14px; border:1px solid rgba(255,255,255,.12); image-rendering:auto;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/poster_p.js?v=20260216_0204"></script>
+</body>
+</html>
