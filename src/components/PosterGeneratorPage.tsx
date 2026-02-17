@@ -140,22 +140,46 @@ function drawSaluteText(
   ctx.restore();
 }
 
-// ─── Counter (localStorage) ─────────────────────────────────────────
+// ─── Counter (remote API + localStorage fallback) ───────────────────
 
-function getCounterKey(templateId: string) {
-  return `poster_count_${templateId}`;
-}
+const COUNTER_NS = 'web3chunwan2026';
 
-function getCount(templateId: string): number {
+async function fetchCount(templateId: string): Promise<number> {
+  const key = `poster-${templateId}`;
   try {
-    return parseInt(localStorage.getItem(getCounterKey(templateId)) || '0', 10) || 0;
-  } catch { return 0; }
+    const res = await fetch(`https://abacus.jasoncameron.dev/get/${COUNTER_NS}/${key}`);
+    if (!res.ok) throw new Error('api error');
+    const data = await res.json();
+    const val = Number(data.value) || 0;
+    // 同步到 localStorage 作为缓存
+    try { localStorage.setItem(`poster_count_${templateId}`, String(val)); } catch {}
+    return val;
+  } catch {
+    // API 不可用时回退到 localStorage
+    try {
+      return parseInt(localStorage.getItem(`poster_count_${templateId}`) || '0', 10) || 0;
+    } catch { return 0; }
+  }
 }
 
-function incrementCount(templateId: string): number {
-  const next = getCount(templateId) + 1;
-  try { localStorage.setItem(getCounterKey(templateId), String(next)); } catch {}
-  return next;
+async function incrementCount(templateId: string): Promise<number> {
+  const key = `poster-${templateId}`;
+  try {
+    const res = await fetch(`https://abacus.jasoncameron.dev/hit/${COUNTER_NS}/${key}`);
+    if (!res.ok) throw new Error('api error');
+    const data = await res.json();
+    const val = Number(data.value) || 0;
+    try { localStorage.setItem(`poster_count_${templateId}`, String(val)); } catch {}
+    return val;
+  } catch {
+    // API 不可用时回退到 localStorage 自增
+    try {
+      const prev = parseInt(localStorage.getItem(`poster_count_${templateId}`) || '0', 10) || 0;
+      const next = prev + 1;
+      localStorage.setItem(`poster_count_${templateId}`, String(next));
+      return next;
+    } catch { return 1; }
+  }
 }
 
 // ─── Component ───────────────────────────────────────────────────────
@@ -170,13 +194,17 @@ const PosterGeneratorPage: React.FC = () => {
   const [shareTextIdx, setShareTextIdx] = useState(
     () => Math.floor(Math.random() * SHARE_TEXTS.length),
   );
-  const [counter, setCounter] = useState(() => getCount(TEMPLATES[0].id));
+  const [counter, setCounter] = useState(0);
 
   const dpr = typeof window !== 'undefined' ? Math.max(1, window.devicePixelRatio || 1) : 1;
 
-  // Refresh counter when template changes
+  // Fetch remote counter when template changes (or on mount)
   useEffect(() => {
-    setCounter(getCount(selectedTemplate.id));
+    let cancelled = false;
+    fetchCount(selectedTemplate.id).then((val) => {
+      if (!cancelled) setCounter(val);
+    });
+    return () => { cancelled = true; };
   }, [selectedTemplate]);
 
   useEffect(() => {
@@ -246,7 +274,7 @@ const PosterGeneratorPage: React.FC = () => {
         const file = new File([blob], fileName, { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: 'Web3春晚奖杯海报' });
-          const n = incrementCount(selectedTemplate.id);
+          const n = await incrementCount(selectedTemplate.id);
           setCounter(n);
           toast.success('海报已分享/保存！');
           return;
@@ -277,7 +305,7 @@ const PosterGeneratorPage: React.FC = () => {
         setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
       }
 
-      const n = incrementCount(selectedTemplate.id);
+      const n = await incrementCount(selectedTemplate.id);
       setCounter(n);
       toast.success('海报已保存！');
     } catch (err: any) {
@@ -308,11 +336,11 @@ const PosterGeneratorPage: React.FC = () => {
     } catch { toast.error('操作失败'); }
   }, [name]);
 
-  const handleShareToTwitter = useCallback(() => {
+  const handleShareToTwitter = useCallback(async () => {
     const text = encodeURIComponent(SHARE_TEXTS[shareTextIdx]);
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
     handleCopyImage();
-    const n = incrementCount(selectedTemplate.id);
+    const n = await incrementCount(selectedTemplate.id);
     setCounter(n);
   }, [shareTextIdx, handleCopyImage, selectedTemplate]);
 
